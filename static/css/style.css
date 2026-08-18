@@ -112,7 +112,25 @@ textarea{min-height:120px;resize:vertical}
 }
 
 /* v5: concise, clickable Spot the Phish */
-.phish-message{display:grid;gap:10px;background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:18px;padding:14px;margin:22px 0}
+.phish-message{display:grid;gap:10px;background:#f5f7fb;border:1px solid #cfd6e5;border-radius:18px;padding:0;margin:22px 0;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,.22)}
+.phish-message .message-top{background:#e9edf5;border-bottom:1px solid #cfd6e5;color:#45516a;padding:13px 18px}
+.phish-message .message-top span:last-child{color:#d65b69;font-size:10px;letter-spacing:.7px}
+.phish-message .phish-zone{border-color:#d6dce8;background:#fff;color:#172033;border-radius:10px;margin:0 14px;padding:15px 16px}
+.phish-message .phish-zone:last-child{margin-bottom:14px}
+.phish-message .phish-zone:hover{border-color:#7aa7ff;background:#f7faff}
+.phish-message .phish-zone.selected{border-color:#1b9d78;background:#e8faf3;box-shadow:0 0 0 2px rgba(27,157,120,.15)}
+.phish-message .zone-label{color:#66738a}
+.phish-message .phish-zone span:last-child{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.phish-message .phish-zone:nth-child(4) span:last-child,.phish-message .phish-zone:nth-child(5) span:last-child{white-space:pre-line}
+.whatsapp-card .message-top{background:#dff5e8;color:#17633f}
+.sms-card .message-top{background:#e3eefb;color:#245682}
+.whatsapp-card .phish-zone,.sms-card .phish-zone{border:0;border-radius:10px;box-shadow:none}
+.whatsapp-card .message-zone{background:#e4f7dc;margin-left:55px}
+.whatsapp-card .action-zone{background:#fff;margin-right:55px}
+.sms-card .message-zone{background:#e8f1ff;margin-left:30px;margin-right:30px;border-radius:18px}
+.link-preview{display:inline-block;cursor:help;color:#1d4e89;line-height:1.6}
+.link-preview u{font-weight:800;color:#1c63b7}
+.link-preview small{color:#66738a;font-family:Inter,system-ui,sans-serif;font-size:11px}
 .phish-zone{width:100%;text-align:left;border:1px solid var(--line);background:#0d1321;color:var(--text);border-radius:13px;padding:16px 18px;cursor:pointer;display:flex;gap:14px;align-items:flex-start;transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease}
 .phish-zone:hover{transform:translateY(-1px);border-color:var(--accent2)}
 .phish-zone.selected{border-color:var(--accent);background:rgba(114,242,199,.08);box-shadow:0 0 0 2px rgba(114,242,199,.08)}

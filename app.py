@@ -12,7 +12,7 @@ DB_PATH = BASE_DIR / "cyberready.db"
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("CYBERREADY_SECRET_KEY", "CyberReady_Local_Demo_2026")
-ADMIN_PASSWORD = os.environ.get("CYBERREADY_ADMIN_PASSWORD", "CR-Admin-2026!Secure")
+ADMIN_PASSWORD = os.environ.get("CYBERREADY_ADMIN_PASSWORD", "cyberready")
 
 CATEGORIES = {
     "Phishing & Email Security": "Phishing",
@@ -64,12 +64,13 @@ def init_db():
     phish_count = conn.execute("SELECT COUNT(*) FROM questions WHERE mode='phish'").fetchone()[0]
     if phish_count == 0:
         seed_phish_questions(conn)
+    repair_phish_questions(conn)
     conn.commit()
     conn.close()
 
 
 def seed_challenge_questions(conn):
-    # The original 25-question Cyber Challenge bank.
+    # The Cyber Challenge question bank; each attempt uses the first ten available.
     questions = [
         ("Phishing & Email Security", "You receive an email that appears to be from HR saying: “URGENT: Salary Account Verification Required.” It asks you to click a link within 30 minutes to prevent payment delays. What should you do?", "Click the link immediately because salary is involved", "Reply to the email asking whether it is genuine", "Contact HR through a known official channel to verify the request", "Forward the email to your colleagues", "C", "Urgency and requests for sensitive information are common phishing indicators. Verify through an independent, trusted channel.", "Easy"),
         ("Phishing & Email Security", "You receive a message saying your Microsoft 365 account will be suspended unless you log in using a provided link. The link uses a strange domain. What is the biggest warning sign?", "The message contains the Microsoft logo", "The link does not appear to be an official Microsoft domain", "Microsoft 365 accounts can be suspended", "The message asks you to log in", "B", "Attackers create fake login pages that look legitimate. Check the actual domain and use trusted bookmarks or official sites.", "Easy"),
@@ -108,14 +109,16 @@ def seed_challenge_questions(conn):
 
 def seed_phish_questions(conn):
     phish = [
-        ("Email", "FROM: payroll@payr0ll-update.com\nSUBJECT: URGENT — Salary Account Verification\n\nYour salary payment is on hold. Verify your bank details within 30 minutes or your payment may be delayed.\n\n[ VERIFY NOW ]", "The sender domain contains a suspicious spelling", "The email mentions salary", "The message uses a greeting", "The email is short", "A", "The domain payr0ll-update.com uses a zero in place of the expected spelling and is not an obvious official payroll domain. Verify through a trusted channel instead of clicking the link.", "Easy"),
-        ("Email", "FROM: it-support@micr0soft-security.com\nSUBJECT: Microsoft 365 password expires today\n\nYour mailbox will be disabled unless you confirm your password immediately.\n\n[ KEEP MY ACCOUNT ]", "It says Microsoft 365", "The sender domain is not an official Microsoft domain", "It uses a button", "It says password", "B", "The sender domain is a major red flag. Attackers commonly imitate trusted brands with lookalike domains.", "Easy"),
-        ("WhatsApp", "FROM: Unknown number\n\nCEO: I’m in a meeting and need you to buy ₦200,000 worth of gift cards. Send the codes here when done. Please don’t call because I’m busy.", "The person uses WhatsApp", "The request is urgent and asks for gift-card codes", "The message has no emoji", "The sender says they are busy", "B", "Urgency, secrecy and an unusual financial request are classic executive-impersonation signals. Verify through a known company channel.", "Easy"),
-        ("Email", "FROM: recruitment@company-careers.com\nSUBJECT: Final interview document\n\nPlease open the attached .exe file to view your interview schedule. We need it opened today.", "It concerns recruitment", "The attachment is an executable file", "The email has a subject line", "The sender mentions an interview", "B", "Executable attachments are high risk, especially when unexpected. Verify the message and use the organization’s approved reporting process.", "Easy"),
-        ("SMS", "Your bank account will be blocked today. Confirm your BVN and PIN at: hxxps://secure-bank-verification.example", "It says your account will be blocked", "It asks for a PIN and uses an unsolicited link", "It uses the word secure", "It is an SMS", "B", "Requests for PINs and sensitive credentials through unsolicited links are strong phishing indicators. Use the bank’s official app or known website instead.", "Easy"),
-        ("Email", "FROM: benefits@company.com\nSUBJECT: Staff bonus — action required\n\nWe have credited your bonus. To release it, sign in to your account using the link below.\n\nThe link displayed is: company.com\nBut hovering reveals: login-company-bonus.example", "The email is about a bonus", "The visible link and actual destination do not match", "It contains a subject line", "It comes from a company-looking address", "B", "A mismatched link destination is a strong phishing clue. Never rely only on the text displayed for a link.", "Medium"),
-        ("Email", "FROM: ceo.office@company.com\nSUBJECT: Need a quick favour\n\nI’m travelling. Please send me the employee list with phone numbers and home addresses. I need it for a meeting in 10 minutes.", "The request is for employee personal information", "The message says meeting", "The sender uses a company-looking address", "It is only one paragraph", "A", "A request for sensitive personal information combined with urgency should be independently verified before disclosure.", "Medium"),
-        ("WhatsApp", "FROM: HR Updates\n\nCongratulations! You have been selected for a staff welfare payment. Send your BVN, NIN and bank login details to this number to receive ₦150,000 today.", "It mentions staff welfare", "It asks for extremely sensitive credentials and identity information", "It uses a money amount", "It comes through WhatsApp", "B", "BVN, NIN and especially bank login details should not be sent through an unsolicited message. Treat this as suspicious and report it.", "Easy"),
+        ("Email", "FROM: payroll@payr0ll-update.com\n---\nSUBJECT: URGENT — Salary Account Verification\n---\nYour salary payment is on hold. Verify your bank details within 30 minutes or your payment may be delayed.\n---\n[ VERIFY NOW ]", "The sender domain contains a suspicious spelling", "The email mentions salary", "The message uses a greeting", "The email is short", "A", "The domain payr0ll-update.com uses a zero in place of the expected spelling and is not an obvious official payroll domain. Verify through a trusted channel instead of clicking the link.", "Easy"),
+        ("Email", "FROM: it-support@micr0soft-security.com\n---\nSUBJECT: Microsoft 365 password expires today\n---\nYour mailbox will be disabled unless you confirm your password immediately.\n---\n[ VERIFY ACCOUNT ]\nDestination shown on hover: microsoft-login-security.example", "The sender domain contains a lookalike spelling (micr0soft uses zero)", "The message mentions Microsoft 365", "The message asks you to act quickly", "The button is blue", "A", "The sender uses micr0soft-security.com, where the 0 replaces the letter o. It is not an official Microsoft domain.", "Easy"),
+        ("WhatsApp", "FROM: Unknown number (+234 810 555 0199)\n---\nWHATSAPP: CEO needs a quick favour\n---\nI’m in a meeting and need you to buy ₦200,000 worth of gift cards. Send the codes here when done. Please don’t call because I’m busy.\n---\nREQUEST: Send gift-card codes", "The sender is an unknown number impersonating the CEO", "The request is urgent and asks for gift-card codes", "The person uses WhatsApp", "The sender says they are busy", "A", "An unknown number claiming to be the CEO is impersonating a trusted person. Verify through a known company channel before acting.", "Easy"),
+        ("Email", "FROM: recruitment@company-careers.com\n---\nSUBJECT: Final interview document\n---\nPlease open the attached file to view your interview schedule. We need it opened today.\n---\nDOWNLOAD: interview-schedule.example/Final_Interview.exe", "It concerns recruitment", "The subject sounds professional", "The message asks you to open an executable file", "The download link leads to an executable file", "D", "The download destination ends in .exe and is presented through an unsolicited message. Do not open it; verify through the official recruitment channel.", "Easy"),
+        ("SMS", "FROM: +234 800 000 0000\n---\nSMS: Your bank account will be blocked today\n---\nConfirm your BVN and PIN immediately to prevent account closure.\n---\nLINK: hxxps://secure-bank-verification.example", "It says your account will be blocked", "It asks for a PIN and uses an unsolicited link", "It uses the word secure", "It is an SMS", "D", "The unsolicited link asks for a PIN and sensitive information. Use the official banking app or known contact channel instead.", "Easy"),
+        ("Email", "FROM: benefits@company.com\n---\nSUBJECT: Staff bonus — action required\n---\nWe have credited your bonus. To release it, sign in to your account using the link below.\n---\nVisible: company.com  |  Actual: login-company-bonus.example", "The email is about a bonus", "The visible link and actual destination do not match", "It contains a subject line", "It comes from a company-looking address", "D", "A mismatched link destination is a strong phishing clue. Never rely only on the text displayed for a link.", "Medium"),
+        ("Email", "FROM: ceo.office@company.com\n---\nSUBJECT: Need a quick favour\n---\nI’m travelling. Please send me the employee list with phone numbers and home addresses. I need it for a meeting in 10 minutes.\n---\nREQUEST: Send employee list", "The request is for employee personal information", "The message says meeting", "The sender uses a company-looking address", "It is only one paragraph", "C", "The message requests sensitive personal information with urgency. Verify the request independently before disclosure.", "Medium"),
+        ("WhatsApp", "FROM: HR Updates\n---\nWHATSAPP: Staff welfare payment\n---\nCongratulations! You have been selected for a staff welfare payment. Send your BVN, NIN and bank login details to this number to receive ₦150,000 today.\n---\nREQUEST: Send BVN, NIN and bank login details", "It mentions staff welfare", "It contains a money amount", "The message asks for BVN, NIN and bank login details", "It comes through WhatsApp", "C", "The message body requests highly sensitive identity and banking information. Never send these details through an unsolicited WhatsApp message.", "Easy"),
+        ("Email", "FROM: support@company-secure.example\n---\nSUBJECT: Account verification required\n---\nWe detected unusual activity. Confirm your password to keep your account active.\n---\nLINK: hxxps://company-secure.example/verify", "The sender domain is unfamiliar", "The subject asks for verification", "The message mentions unusual activity", "It asks you to submit your password", "D", "An unsolicited link asking for a password is a strong phishing signal. Use a trusted bookmark instead.", "Easy"),
+        ("Email", "FROM: Facilities Desk\n---\nSUBJECT: Visitor access update\n---\nA contractor is waiting at reception. Please let them into the restricted office because their access card is not working.\n---\nREQUEST: ALLOW ACCESS", "The sender is called Facilities Desk", "The subject mentions visitor access", "The message asks you to make an exception to physical access controls", "The button says Allow Access", "C", "Requests to bypass physical access controls should follow the organisation's visitor procedure, even when the request appears legitimate.", "Easy"),
     ]
     now = datetime.now().isoformat(timespec="seconds")
     conn.executemany("""
@@ -124,6 +127,21 @@ def seed_phish_questions(conn):
          correct_answer, explanation, difficulty, mode, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'phish', ?)
     """, [q + (now,) for q in phish])
+
+
+def repair_phish_questions(conn):
+    repairs = [
+        ("FROM: it-support@%", "FROM: it-support@micr0soft-security.com\n---\nSUBJECT: Microsoft 365 password expires today\n---\nYour mailbox will be disabled unless you confirm your password immediately.\n---\n[ VERIFY ACCOUNT ]\nDestination shown on hover: microsoft-login-security.example", "The sender domain contains a lookalike spelling (micr0soft uses zero)", "The sender uses a lookalike domain: micr0soft-security.com replaces the o with 0. It is not an official Microsoft domain.", "A"),
+        ("FROM: Unknown number%", "FROM: Unknown number (+234 810 555 0199)\n---\nWHATSAPP: CEO needs a quick favour\n---\nI’m in a meeting and need you to buy ₦200,000 worth of gift cards. Send the codes here when done. Please don’t call because I’m busy.\n---\nREQUEST: Send gift-card codes", "The sender is an unknown number impersonating the CEO", "An unknown number claiming to be the CEO is impersonating a trusted person. Verify through a known company channel before acting.", "A"),
+        ("FROM: recruitment@%", "FROM: recruitment@company-careers.com\n---\nSUBJECT: Final interview document\n---\nPlease open the attached file to view your interview schedule. We need it opened today.\n---\nDOWNLOAD: interview-schedule.example/Final_Interview.exe", "The download link leads to an executable file", "The download destination ends in .exe and is presented through an unsolicited message. Do not open it; verify through the official recruitment channel.", "D"),
+        ("FROM: HR Updates%", "FROM: HR Updates\n---\nWHATSAPP: Staff welfare payment\n---\nCongratulations! You have been selected for a staff welfare payment. Send your BVN, NIN and bank login details to this number to receive ₦150,000 today.\n---\nREQUEST: Send BVN, NIN and bank login details", "The message asks for BVN, NIN and bank login details", "The message body requests highly sensitive identity and banking information. Never send these details through an unsolicited WhatsApp message.", "C"),
+    ]
+    for pattern, message, option_a, explanation, answer in repairs:
+        conn.execute("""
+            UPDATE questions
+            SET question=?, option_a=?, explanation=?, correct_answer=?
+            WHERE mode='phish' AND question LIKE ?
+        """, (message, option_a, explanation, answer, pattern))
 
 
 def get_questions(mode="challenge"):
@@ -153,20 +171,8 @@ def start():
         flash("This challenge has no questions yet.")
         return redirect(url_for("index"))
 
-    # Keep the assessment short: 10 questions per attempt.
-    if mode == "challenge":
-        # Pick two questions from each threat category where possible.
-        selected = []
-        seen_categories = []
-        for q in questions:
-            if q["category"] not in seen_categories:
-                seen_categories.append(q["category"])
-        for category in seen_categories:
-            category_rows = [q for q in questions if q["category"] == category]
-            selected.extend(category_rows[:2])
-        questions = selected[:10]
-    else:
-        questions = questions[:10]
+    # Keep every assessment at a predictable ten questions, regardless of admin edits.
+    questions = questions[:10]
 
     session.clear()
     session["employee_id"] = employee_id

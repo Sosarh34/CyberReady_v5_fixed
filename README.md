@@ -3,8 +3,8 @@
 A local Flask + SQLite security-awareness quiz/game MVP for the capstone project.
 
 ## What is new in v2
-- Working Cyber Challenge (25 scenarios)
-- Working Spot the Phish mode (8 simulated email/SMS/WhatsApp missions)
+- Working Cyber Challenge (10 scenarios per attempt)
+- Working Spot the Phish mode (10 simulated email/SMS/WhatsApp missions)
 - Results are saved reliably to SQLite and can be viewed again after completion
 - Assessment Dashboard shows attempts and scores
 - Result page identifies employee ID, department, mode, score and threat-zone performance
@@ -40,9 +40,9 @@ This version keeps the core MVP intentionally lightweight: a polished, workplace
 
 
 ## v5 design/security changes
-- Cyber Challenge reduced to 10 concise questions per attempt.
+- Cyber Challenge uses 10 concise questions per attempt.
 - Spot the Phish reduced to 10 missions and changed from multiple-choice to clickable message zones.
 - Staff quiz access is separate from administrator access.
 - Admin area requires a separate administrator password.
-- Default local demo admin password: `CR-Admin-2026!Secure`
+- Default local demo admin password: `cyberready`
 - For stronger deployment security, set `CYBERREADY_ADMIN_PASSWORD` as an environment variable instead of relying on the demo default.

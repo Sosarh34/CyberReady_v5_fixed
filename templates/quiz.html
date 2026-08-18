@@ -11,16 +11,21 @@
 
 {% if mode == 'phish' %}
 {% set parts = q["question"].split('\n---\n') %}
+{% set is_whatsapp = 'WHATSAPP:' in parts[1] %}
+{% set is_sms = 'SMS:' in parts[1] %}
+{% set channel = 'whatsapp' if is_whatsapp else ('sms' if is_sms else 'email') %}
+{% set action_text = parts[3] if parts|length > 3 else 'No link or action shown' %}
 <div class="phish-intro"><div class="eyebrow">MISSION {{ number }} · CLICK THE RED FLAG 🚩</div>
 <h1>Which part of this message makes you suspicious?</h1>
 <p class="muted">Click the single strongest red flag. No multiple-choice answers here.</p></div>
 <form action="{{ url_for('answer') }}" method="post" class="quiz-form" id="phishForm">
 <input type="hidden" name="question_id" value="{{ q['id'] }}"><input type="hidden" name="answer" id="phishAnswer">
-<div class="phish-message">
-<button type="button" class="phish-zone" data-answer="A"><span class="zone-label">FROM</span><span>{{ parts[0]|replace('FROM: ','') }}</span></button>
-<button type="button" class="phish-zone" data-answer="B"><span class="zone-label">SUBJECT</span><span>{{ parts[1]|replace('SUBJECT: ','') }}</span></button>
-<button type="button" class="phish-zone" data-answer="C"><span class="zone-label">MESSAGE</span><span>{{ parts[2] }}</span></button>
-<button type="button" class="phish-zone" data-answer="D"><span class="zone-label">LINK / ACTION</span><span>{{ parts[3] }}</span></button>
+<div class="phish-message {{ channel }}-card">
+  <div class="message-top"><span>{{ '💬 WhatsApp' if is_whatsapp else ('📱 Messages' if is_sms else '✉️ Mail') }}</span><span>● LIVE PREVIEW</span></div>
+  <button type="button" class="phish-zone" data-answer="A"><span class="zone-label">FROM</span><span>{{ parts[0]|replace('FROM: ','') }}</span></button>
+  <button type="button" class="phish-zone" data-answer="B"><span class="zone-label">{{ 'CHANNEL' if is_whatsapp else ('ALERT' if is_sms else 'SUBJECT') }}</span><span>{{ 'WhatsApp message' if is_whatsapp else (parts[1]|replace('SUBJECT: ','')|replace('SMS: ','')) }}</span></button>
+  <button type="button" class="phish-zone message-zone" data-answer="C"><span class="zone-label">MESSAGE</span><span>{{ parts[2] }}</span></button>
+  <button type="button" class="phish-zone action-zone" data-answer="D"><span class="zone-label">{{ 'REQUEST' if is_whatsapp else ('LINK' if is_sms else 'LINK / ACTION') }}</span><span>{% if 'Visible:' in action_text and 'Actual:' in action_text %}<span class="link-preview" title="Hover target: login-company-bonus.example">Visible link: <u>company.com</u><br><small>Hover to inspect destination</small></span>{% elif 'Destination shown on hover:' in action_text %}<span class="link-preview" title="Hover target: microsoft-login-security.example"><u>VERIFY ACCOUNT</u><br><small>Hover to inspect destination</small></span>{% else %}{{ action_text }}{% endif %}</span></button>
 </div>
 <button class="primary lock-btn" id="phishSubmit" type="submit" disabled><span>CHECK MY CHOICE</span><span>→</span></button>
 </form>
