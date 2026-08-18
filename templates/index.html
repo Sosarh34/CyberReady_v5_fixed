@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady?</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark-bg">
+<div class="shell hero">
+  <div class="brand"><span class="shield">◈</span> CyberReady<span class="q">?</span></div>
+  <div class="tagline">Are you a <b>Cyber Gen Z</b>?</div>
+  <p class="intro">Quick questions. Real workplace situations. See how cyber-ready you really are.</p>
+
+  <div class="chips"><span>10 quick challenges</span><span>10 phish missions</span><span>Instant feedback</span></div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}<div class="alert">{{ messages[0] }}</div>{% endif %}
+  {% endwith %}
+
+  <form action="{{ url_for('start') }}" method="post" class="card form-card">
+    <div class="form-heading">
+      <div>
+        <div class="eyebrow">READY WHEN YOU ARE</div>
+        <h2>Let's see what you've got.</h2>
+      </div>
+      <span class="sparkle" aria-hidden="true">✦</span>
+    </div>
+
+    <label for="employee_id">Employee ID</label>
+    <input id="employee_id" name="employee_id" placeholder="e.g. TEST-001" autocomplete="off" required>
+
+    <label for="department">Department</label>
+    <input id="department" name="department" placeholder="e.g. Operations" autocomplete="organization" required>
+
+    <div class="section-label">Choose your challenge</div>
+    <div class="mode-grid">
+      <label class="mode selected">
+        <input type="radio" name="mode" value="challenge" checked>
+        <span class="mode-icon">🎯</span>
+        <span class="mode-copy"><strong>Cyber Challenge</strong><small>25 mixed workplace scenarios</small></span>
+        <span class="mode-check">✓</span>
+      </label>
+      <label class="mode">
+        <input type="radio" name="mode" value="phish">
+        <span class="mode-icon">🎣</span>
+        <span class="mode-copy"><strong>Spot the Phish</strong><small>8 realistic email, SMS &amp; WhatsApp traps</small></span>
+        <span class="mode-check">✓</span>
+      </label>
+    </div>
+
+    <button class="primary launch-btn" type="submit"><span>LET'S GO</span><span>→</span></button>
+    <p class="tiny">Short, practical security awareness — not another boring training.</p>
+  </form>
+
+  <a class="admin-link" href="{{ url_for('admin_login') }}">Admin / Assessment Dashboard</a>
+</div>
+
+<script>
+document.querySelectorAll('.mode').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode').forEach(x => x.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input').checked = true;
+  });
+});
+</script>
+</body>
+</html>

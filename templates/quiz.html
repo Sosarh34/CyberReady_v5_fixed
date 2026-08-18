@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady? — {{ 'Spot the Phish' if mode == 'phish' else 'Challenge' }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body>
+<div class="topbar"><div class="brand mini">CyberReady<span class="q">?</span></div>
+<div class="top-actions"><span class="mode-pill">{{ '🎣 SPOT THE PHISH' if mode == 'phish' else '🎯 CYBER CHALLENGE' }}</span></div></div>
+<div class="shell quiz-shell">
+<div class="quiz-meta"><span>QUESTION {{ number }} OF {{ total }}</span><span>{{ q["category"] }}</span><span class="difficulty {{ q["difficulty"]|lower }}">{{ q["difficulty"] }}</span></div>
+<div class="progress"><div style="width: {{ (number/total)*100 }}%"></div></div>
+
+{% if mode == 'phish' %}
+{% set parts = q["question"].split('\n---\n') %}
+<div class="phish-intro"><div class="eyebrow">MISSION {{ number }} · CLICK THE RED FLAG 🚩</div>
+<h1>Which part of this message makes you suspicious?</h1>
+<p class="muted">Click the single strongest red flag. No multiple-choice answers here.</p></div>
+<form action="{{ url_for('answer') }}" method="post" class="quiz-form" id="phishForm">
+<input type="hidden" name="question_id" value="{{ q['id'] }}"><input type="hidden" name="answer" id="phishAnswer">
+<div class="phish-message">
+<button type="button" class="phish-zone" data-answer="A"><span class="zone-label">FROM</span><span>{{ parts[0]|replace('FROM: ','') }}</span></button>
+<button type="button" class="phish-zone" data-answer="B"><span class="zone-label">SUBJECT</span><span>{{ parts[1]|replace('SUBJECT: ','') }}</span></button>
+<button type="button" class="phish-zone" data-answer="C"><span class="zone-label">MESSAGE</span><span>{{ parts[2] }}</span></button>
+<button type="button" class="phish-zone" data-answer="D"><span class="zone-label">LINK / ACTION</span><span>{{ parts[3] }}</span></button>
+</div>
+<button class="primary lock-btn" id="phishSubmit" type="submit" disabled><span>CHECK MY CHOICE</span><span>→</span></button>
+</form>
+{% else %}
+<div class="question-heading"><div class="question-visual" aria-hidden="true">
+{% if q["category"] == "Phishing & Email Security" %}📩{% elif q["category"] == "Passwords & MFA" %}🔐{% elif q["category"] == "Social Engineering" %}🧠{% elif q["category"] == "Device & USB Security" %}💻{% else %}🌐{% endif %}</div>
+<div><div class="eyebrow">QUICK SCENARIO</div><h1>{{ q["question"] }}</h1></div></div>
+<form action="{{ url_for('answer') }}" method="post" class="quiz-form">
+<input type="hidden" name="question_id" value="{{ q['id'] }}">
+<div class="answers">
+{% for letter, text in [('A', q['option_a']), ('B', q['option_b']), ('C', q['option_c']), ('D', q['option_d'])] %}
+<label class="answer"><input type="radio" name="answer" value="{{ letter }}" required><span class="letter">{{ letter }}</span><span class="answer-text">{{ text }}</span><span class="answer-arrow">→</span></label>
+{% endfor %}</div>
+<button class="primary lock-btn" type="submit"><span>LOCK IN ANSWER</span><span>→</span></button>
+</form>
+{% endif %}
+</div>
+<script>
+document.querySelectorAll('.phish-zone').forEach(function(zone){
+  zone.addEventListener('click',function(){
+    document.querySelectorAll('.phish-zone').forEach(function(z){z.classList.remove('selected')});
+    zone.classList.add('selected');
+    document.getElementById('phishAnswer').value=zone.dataset.answer;
+    document.getElementById('phishSubmit').disabled=false;
+  });
+});
+</script>
+</body></html>

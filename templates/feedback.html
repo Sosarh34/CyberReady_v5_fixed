@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady? — Feedback</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="feedback-bg">
+<div class="shell feedback-shell">
+  <div class="feedback-burst {{ 'success' if is_correct else 'oops' }}" aria-hidden="true">
+    <span class="face">{{ '😎' if is_correct else '😳' }}</span>
+    <span class="burst-dot dot-a"></span><span class="burst-dot dot-b"></span><span class="burst-dot dot-c"></span>
+  </div>
+
+  <div class="eyebrow">{{ 'SPOT THE PHISH' if mode == 'phish' else 'CYBER CHALLENGE' }} · FEEDBACK</div>
+
+  <h1 id="feedbackHeadline"
+      data-correct="{{ 'true' if is_correct else 'false' }}"
+      data-mode="{{ mode }}"
+      data-number="{{ number }}">Loading...</h1>
+
+  <p class="feedback-title" id="feedbackSubline"></p>
+
+  <div class="card explanation">
+    <div class="eyebrow">WHY IT MATTERS</div>
+    <p>{{ q["explanation"] }}</p>
+    {% if not is_correct %}
+      <div class="correct-answer"><span>THE ANSWER WAS</span><strong>{{ q["correct_answer"] }}</strong></div>
+    {% endif %}
+  </div>
+
+  <div class="feedback-tip">
+    <span class="tip-icon">💡</span>
+    <span>{{ 'Keep that instinct.' if is_correct else 'Now you know what to look for next time.' }}</span>
+  </div>
+
+  <a class="primary button-link next-btn" href="{{ url_for('quiz') }}">
+    {{ 'NEXT MISSION' if mode == 'phish' and number < total else ('NEXT QUESTION' if number < total else 'SEE MY RESULTS') }} <span>→</span>
+  </a>
+</div>
+
+<script>
+const headline = document.getElementById('feedbackHeadline');
+const subline = document.getElementById('feedbackSubline');
+const correct = headline.dataset.correct === 'true';
+const mode = headline.dataset.mode;
+const n = Number(headline.dataset.number);
+
+const good = mode === 'phish'
+  ? [
+      ['NICE CATCH! 🎣', 'That red flag did not slip past you.'],
+      ['YOU SPOTTED IT. 👀', 'Good instinct — you paused before trusting it.'],
+      ['THREAT SPOTTED! 🛡️', 'That is exactly the kind of clue attackers hope you miss.'],
+      ['SHARP EYES. 😎', 'Your phishing radar is working.']
+    ]
+  : [
+      ['NICE ONE! 😎', 'Good cyber instinct.'],
+      ['YOU GOT IT! 🎯', 'That was a solid call.'],
+      ['GOOD CATCH. 👀', 'You made the safer choice.'],
+      ['LOOK AT YOU! 🔥', 'That is the kind of decision security teams like.']
+    ];
+
+const bad = mode === 'phish'
+  ? [
+      ['OOH... CLOSE ONE. 😳', 'That message had a trap hiding in plain sight.'],
+      ['ALMOST! 👀', 'Let’s break down what gave it away.'],
+      ['CAUGHT OFF-GUARD? 😬', 'No stress — now you know the clue to watch for.'],
+      ['THAT ONE WAS SNEAKY. 🫣', 'Here is the tell you should remember.']
+    ]
+  : [
+      ['OOH... NOT QUITE. 😳', 'No stress — this is what the training is for.'],
+      ['CLOSE ONE! 😬', 'Let’s see why another choice was safer.'],
+      ['TRICKY ONE, RIGHT? 🤨', 'Here is the security lesson to take away.'],
+      ['NOT THIS TIME. 🙈', 'Good news: you now know what to watch for.']
+    ];
+
+const phrases = correct ? good : bad;
+const chosen = phrases[(Math.max(n,1)-1) % phrases.length];
+headline.textContent = chosen[0];
+subline.textContent = chosen[1];
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+CYBERREADY? — PROJECT MAP
+
+app.py
+  Flask backend, routes, scoring, SQLite access, admin functions.
+
+cyberready.db
+  SQLite database containing the question bank and assessment results.
+
+templates/
+  The pages shown in Edge.
+
+static/css/style.css
+  Visual design: dark + Gen-Z hybrid.
+
+start.bat
+  Launches the app from its own folder (working-directory safe).
+
+setup.bat
+  Installs requirements from its own folder and reports failures correctly.
+
+IMPORTANT
+  This is a local development MVP. Do not expose it to the public internet.
+  The admin page is intentionally simple for the capstone lab and will be
+  hardened during the security-testing stage.

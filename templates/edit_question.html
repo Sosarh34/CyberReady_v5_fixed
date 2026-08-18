@@ -1,0 +1,26 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady? — Edit Question</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="shell admin-shell">
+  <div class="topline"><div class="brand mini">CyberReady<span class="q">?</span></div><a href="{{ url_for('admin') }}">← Dashboard</a></div>
+  <h1>{{ 'Edit Question' if q else 'Add Question' }}</h1>
+  <form method="post" class="card edit-form">
+    <label>Category</label><input name="category" value="{{ q['category'] if q else '' }}" required>
+    <label>Question / scenario</label><textarea name="question" required>{{ q['question'] if q else '' }}</textarea>
+    {% for key in ['a','b','c','d'] %}
+      <label>Option {{ key|upper }}</label><input name="option_{{ key }}" value="{{ q['option_'+key] if q else '' }}" required>
+    {% endfor %}
+    <label>Correct answer</label>
+    <select name="correct_answer">{% for x in ['A','B','C','D'] %}<option {% if q and q['correct_answer']==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select>
+    <label>Explanation</label><textarea name="explanation" required>{{ q['explanation'] if q else '' }}</textarea>
+    <label>Difficulty</label><select name="difficulty">{% for x in ['Easy','Medium','Hard'] %}<option {% if q and q['difficulty']==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select>
+    <label>Mode</label><select name="mode"><option value="challenge" {% if not q or q['mode']=='challenge' %}selected{% endif %}>Cyber Challenge</option><option value="phish" {% if q and q['mode']=='phish' %}selected{% endif %}>Spot the Phish</option></select>
+    <button class="primary" type="submit">SAVE QUESTION</button>
+  </form>
+</div>
+</body></html>

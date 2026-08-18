@@ -1,0 +1,36 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady? — Admin</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="shell admin-shell">
+  <div class="topline"><div class="brand mini">CyberReady<span class="q">?</span></div><div><a href="{{ url_for('index') }}">← Quiz</a> &nbsp; <a href="{{ url_for('admin_logout') }}">Log out</a></div></div>
+  <h1>Assessment Dashboard</h1>
+  <p class="muted">Restricted administrator dashboard. Staff assessment access does not grant administrator access.</p>
+  <div class="stats">
+    <div class="stat"><b>{{ questions|length }}</b><span>Questions</span></div>
+    <div class="stat"><b>{{ results|length }}</b><span>Attempts</span></div>
+    <div class="stat"><b>{{ (results|map(attribute='percentage')|list|sum / results|length)|round|int if results else 0 }}%</b><span>Average score</span></div>
+  </div>
+  <div class="admin-actions"><a class="secondary button-link" href="{{ url_for('add_question') }}">+ Add Question</a></div>
+  <div class="card table-card">
+    <div class="eyebrow">QUESTION BANK</div>
+    <table><thead><tr><th>ID</th><th>Category</th><th>Question</th><th>Difficulty</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for q in questions %}
+      <tr><td>{{ q["id"] }}</td><td>{{ q["category"] }}</td><td>{{ q["question"][:80] }}{% if q["question"]|length > 80 %}…{% endif %}</td><td>{{ q["difficulty"] }}</td>
+      <td><a href="{{ url_for('edit_question', qid=q['id']) }}">Edit</a>
+      <form method="post" action="{{ url_for('delete_question', qid=q['id']) }}" class="inline" onsubmit="return confirm('Delete this question?')"><button>Delete</button></form></td></tr>
+    {% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card table-card">
+    <div class="eyebrow">RECENT RESULTS</div>
+    <table><thead><tr><th>Employee ID</th><th>Department</th><th>Mode</th><th>Score</th><th>Date</th></tr></thead>
+    <tbody>{% for r in results %}<tr><td>{{ r["employee_id"] }}</td><td>{{ r["department"] }}</td><td>{{ r["mode"] }}</td><td>{{ r["percentage"]|round|int }}%</td><td>{{ r["completed_at"] }}</td></tr>{% endfor %}</tbody></table>
+  </div>
+</div>
+</body></html>

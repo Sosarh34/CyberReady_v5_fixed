@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CyberReady? — Admin Access</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body class="dark-bg"><div class="shell hero" style="padding-top:10vh">
+<div class="brand mini">CyberReady<span class="q">?</span></div>
+<div class="card form-card" style="max-width:460px;text-align:left">
+<div class="eyebrow">RESTRICTED AREA</div><h1>Administrator access</h1>
+<p class="muted">Staff assessment access and administrator access are separate.</p>
+{% with messages=get_flashed_messages() %}{% for m in messages %}<div class="alert">{{m}}</div>{% endfor %}{% endwith %}
+<form method="post">
+<label for="password">Administrator password</label>
+<input id="password" type="password" name="password" autocomplete="current-password" required>
+<button class="primary launch-btn" type="submit"><span>SIGN IN</span><span>→</span></button>
+</form>
+<a class="admin-link" href="{{ url_for('index') }}">← Back to staff quiz</a>
+</div></div></body></html>
