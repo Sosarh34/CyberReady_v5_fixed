@@ -3,6 +3,7 @@ import sqlite3
 import os
 import json
 import hmac
+import re
 from pathlib import Path
 from functools import wraps
 from datetime import datetime
@@ -21,6 +22,9 @@ CATEGORIES = {
     "Device & USB Security": "Device Security",
     "Data Protection & Safe Browsing": "Data & Browsing",
 }
+
+EMPLOYEE_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,30}$")
+DEPARTMENT_PATTERN = re.compile(r"^[A-Za-z0-9 &().,'/-]{1,80}$")
 
 
 def get_db():
@@ -169,6 +173,12 @@ def start():
     mode = request.form.get("mode", "challenge")
     if not employee_id or not department:
         flash("Please enter your employee ID and department.")
+        return redirect(url_for("index"))
+    if not EMPLOYEE_ID_PATTERN.fullmatch(employee_id):
+        flash("Employee ID must be 1-30 characters using letters, numbers, hyphens, or underscores.")
+        return redirect(url_for("index"))
+    if not DEPARTMENT_PATTERN.fullmatch(department):
+        flash("Department must be 1-80 characters and use normal workplace text only.")
         return redirect(url_for("index"))
     if mode not in ("challenge", "phish"):
         mode = "challenge"

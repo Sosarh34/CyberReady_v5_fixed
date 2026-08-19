@@ -27,10 +27,10 @@
     </div>
 
     <label for="employee_id">Employee ID</label>
-    <input id="employee_id" name="employee_id" placeholder="e.g. TEST-001" autocomplete="off" required>
+    <input id="employee_id" name="employee_id" placeholder="e.g. TEST-001" autocomplete="off" maxlength="30" pattern="[A-Za-z0-9_-]{1,30}" required>
 
     <label for="department">Department</label>
-    <input id="department" name="department" placeholder="e.g. Operations" autocomplete="organization" required>
+    <input id="department" name="department" placeholder="e.g. Operations" autocomplete="organization" maxlength="80" pattern="[A-Za-z0-9 &amp;().,'/-]{1,80}" required>
 
     <div class="section-label">Choose your challenge</div>
     <div class="mode-grid">

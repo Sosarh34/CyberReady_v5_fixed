@@ -4,8 +4,11 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
 <body>
 <div class="topbar"><div class="brand mini">CyberReady<span class="q">?</span></div>
-<div class="top-actions"><span class="mode-pill">{{ '🎣 SPOT THE PHISH' if mode == 'phish' else '🎯 CYBER CHALLENGE' }}</span></div></div>
+<div class="top-actions"><a class="home-link" href="{{ url_for('index') }}">← Back to home</a><span class="mode-pill">{{ '🎣 SPOT THE PHISH' if mode == 'phish' else '🎯 CYBER CHALLENGE' }}</span></div></div>
 <div class="shell quiz-shell">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}<div class="alert validation-message">{{ messages[0] }}</div>{% endif %}
+{% endwith %}
 <div class="quiz-meta"><span>QUESTION {{ number }} OF {{ total }}</span><span>{{ q["category"] }}</span><span class="difficulty {{ q["difficulty"]|lower }}">{{ q["difficulty"] }}</span></div>
 <div class="progress"><div style="width: {{ (number/total)*100 }}%"></div></div>
 
@@ -18,7 +21,7 @@
 <div class="phish-intro"><div class="eyebrow">MISSION {{ number }} · CLICK THE RED FLAG 🚩</div>
 <h1>Which part of this message makes you suspicious?</h1>
 <p class="muted">Click the single strongest red flag. No multiple-choice answers here.</p></div>
-<form action="{{ url_for('answer') }}" method="post" class="quiz-form" id="phishForm">
+<form action="{{ url_for('answer') }}" method="post" class="quiz-form" id="phishForm" novalidate>
 <input type="hidden" name="question_id" value="{{ q['id'] }}"><input type="hidden" name="answer" id="phishAnswer">
 <div class="phish-message {{ channel }}-card">
   <div class="message-top"><span>{{ '💬 WhatsApp' if is_whatsapp else ('📱 Messages' if is_sms else '✉️ Mail') }}</span><span>● LIVE PREVIEW</span></div>
@@ -27,13 +30,13 @@
   <button type="button" class="phish-zone message-zone" data-answer="C"><span class="zone-label">MESSAGE</span><span>{{ parts[2] }}</span></button>
   <button type="button" class="phish-zone action-zone" data-answer="D"><span class="zone-label">{{ 'REQUEST' if is_whatsapp else ('LINK' if is_sms else 'LINK / ACTION') }}</span><span>{% if 'Visible:' in action_text and 'Actual:' in action_text %}<span class="link-preview" title="Hover target: login-company-bonus.example">Visible link: <u>company.com</u><br><small>Hover to inspect destination</small></span>{% elif 'Destination shown on hover:' in action_text %}<span class="link-preview" title="Hover target: microsoft-login-security.example"><u>VERIFY ACCOUNT</u><br><small>Hover to inspect destination</small></span>{% else %}{{ action_text }}{% endif %}</span></button>
 </div>
-<button class="primary lock-btn" id="phishSubmit" type="submit" disabled><span>CHECK MY CHOICE</span><span>→</span></button>
+<button class="primary lock-btn" id="phishSubmit" type="submit"><span>CHECK MY CHOICE</span><span>→</span></button>
 </form>
 {% else %}
 <div class="question-heading"><div class="question-visual" aria-hidden="true">
 {% if q["category"] == "Phishing & Email Security" %}📩{% elif q["category"] == "Passwords & MFA" %}🔐{% elif q["category"] == "Social Engineering" %}🧠{% elif q["category"] == "Device & USB Security" %}💻{% else %}🌐{% endif %}</div>
 <div><div class="eyebrow">QUICK SCENARIO</div><h1>{{ q["question"] }}</h1></div></div>
-<form action="{{ url_for('answer') }}" method="post" class="quiz-form">
+<form action="{{ url_for('answer') }}" method="post" class="quiz-form answer-form" novalidate>
 <input type="hidden" name="question_id" value="{{ q['id'] }}">
 <div class="answers">
 {% for letter, text in [('A', q['option_a']), ('B', q['option_b']), ('C', q['option_c']), ('D', q['option_d'])] %}
@@ -44,12 +47,37 @@
 {% endif %}
 </div>
 <script>
+function showValidationMessage(form, message) {
+  var existing = form.querySelector('.validation-message');
+  if (!existing) {
+    existing = document.createElement('div');
+    existing.className = 'alert validation-message';
+    form.insertBefore(existing, form.firstElementChild);
+  }
+  existing.textContent = message;
+}
+
+document.querySelectorAll('.answer-form').forEach(function(form){
+  form.addEventListener('submit', function(event){
+    if (!form.querySelector('input[name="answer"]:checked')) {
+      event.preventDefault();
+      showValidationMessage(form, 'Please select an answer before continuing.');
+    }
+  });
+});
+
+document.getElementById('phishForm')?.addEventListener('submit', function(event){
+  if (!document.getElementById('phishAnswer').value) {
+    event.preventDefault();
+    showValidationMessage(this, 'Please select the strongest red flag before continuing.');
+  }
+});
+
 document.querySelectorAll('.phish-zone').forEach(function(zone){
   zone.addEventListener('click',function(){
     document.querySelectorAll('.phish-zone').forEach(function(z){z.classList.remove('selected')});
     zone.classList.add('selected');
     document.getElementById('phishAnswer').value=zone.dataset.answer;
-    document.getElementById('phishSubmit').disabled=false;
   });
 });
 </script>
