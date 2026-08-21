@@ -123,7 +123,7 @@ textarea{min-height:120px;resize:vertical}
 .phish-message .zone-label{color:#66738a}
 .phish-message .phish-zone span:last-child{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
 .phish-message .phish-zone:nth-child(4) span:last-child,.phish-message .phish-zone:nth-child(5) span:last-child{white-space:pre-line}
-.whatsapp-card .message-top{background:#dff5e8;color:#17633f}
+.whatsapp-card .message-top{background:#dff5e8;color:#086339}
 .sms-card .message-top{background:#e3eefb;color:#245682}
 .whatsapp-card .phish-zone,.sms-card .phish-zone{border:0;border-radius:10px;box-shadow:none}
 .whatsapp-card .message-zone{background:#e4f7dc;margin-left:55px}
